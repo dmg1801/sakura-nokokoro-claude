@@ -1,0 +1,19 @@
+{
+  "duration": 120,
+  "petals": { "start": 12, "max": 12 },
+  "worryMaxLength": 28,
+  "worryMax": 5,
+  "defaultWorries": ["Preocupación", "Duda", "Prisa", "Miedo", "Cansancio"],
+  "samurai": { "speed": 170, "jump": 420, "gravity": 1100, "stun": 0.6, "invuln": 1.4,
+    "slash": { "windup": 0.08, "active": 0.11, "recover": 0.16, "cooldown": 0.42, "reach": 36, "height": 36 } },
+  "ninja": { "speed": 62, "speedJitter": 14, "jump": 330, "jumpChancePerSec": 0.18,
+    "attackWindup": 0.38, "attackRecover": 0.7, "attackRange": 26, "maxActive": 5 },
+  "spawn": [
+    { "from": 0,  "to": 20,  "interval": 5.0 },
+    { "from": 20, "to": 60,  "interval": 3.6 },
+    { "from": 60, "to": 100, "interval": 2.8 },
+    { "from": 100,"to": 120, "interval": 2.4 }
+  ],
+  "audioDefaults": { "sound": true, "music": true, "musicVol": 0.6, "sfxVol": 0.8, "reducedMotion": false },
+  "assets": {}
+}
