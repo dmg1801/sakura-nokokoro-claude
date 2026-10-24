@@ -71,19 +71,26 @@ function fuji(c, w, h) {
 }
 export const PAGODA = { w: 64, h: 120, roofs: [], windows: [] };
 function pagoda(c, lit) {
-  const levels = 5;
-  for (let i = 0; i < levels; i++) {
-    const y = 12 + i * 21, bw = 30 - i * 2 + 6 * (i * 0), rw = 56 - i * 6, x0 = 32 - bw / 2, rx = 32 - rw / 2;
+  // Five stories, narrowest at the top and widest at the bottom, topped by a spire (sorin).
+  for (let i = 0; i < 5; i++) {
+    const y = 14 + i * 19, rw = 22 + i * 9, bw = rw - 12, rx = 32 - rw / 2, bx = 32 - bw / 2;
     if (!lit) {
-      R(c, '#3a2330', rx, y, rw, 4); R(c, '#2a1824', rx - 3, y + 3, 4, 2); R(c, '#2a1824', rx + rw - 1, y + 3, 4, 2);
-      R(c, '#4d2b3a', rx + 4, y - 3, rw - 8, 3);
-      R(c, '#7a3f3f', x0, y + 4, bw, 15); R(c, '#5a2d2d', x0, y + 4, 3, 15);
+      R(c, '#2a1824', 32 - (rw - 12) / 2, y, rw - 12, 3);                    // roof ridge
+      R(c, '#3a2330', 32 - (rw - 4) / 2, y + 3, rw - 4, 2);                  // roof mid
+      R(c, '#4d2b3a', rx, y + 5, rw, 3);                                      // wide eaves
+      R(c, '#2a1824', rx - 2, y + 4, 3, 2); R(c, '#2a1824', rx + rw - 1, y + 4, 3, 2); // upturned tips
+      R(c, '#1a0f16', rx + 2, y + 8, rw - 4, 1);                              // shadow under eaves
+      R(c, '#7a3f3f', bx, y + 9, bw, 10); R(c, '#5a2d2d', bx, y + 9, 2, 10); R(c, '#5a2d2d', bx + bw - 2, y + 9, 2, 10); // wooden body + posts
+      R(c, '#c9a04a', bx, y + 17, bw, 1);                                     // balcony rail
     } else {
-      R(c, '#ffcf6a', 32 - 3, y + 8, 6, 7); R(c, '#ffe9a6', 32 - 1, y + 9, 2, 5);
-      R(c, '#ffcf6a', x0 + 3, y + 8, 4, 7); R(c, '#ffcf6a', x0 + bw - 7, y + 8, 4, 7);
+      R(c, '#ffcf6a', 30, y + 11, 4, 6); R(c, '#fff0b8', 31, y + 12, 2, 3);
+      if (bw >= 22) { R(c, '#ffcf6a', bx + 4, y + 11, 3, 6); R(c, '#ffcf6a', bx + bw - 7, y + 11, 3, 6); }
     }
   }
-  if (!lit) { R(c, '#2a1824', 31, 0, 2, 12); R(c, '#c9a04a', 29, 4, 6, 2); }
+  if (!lit) {
+    R(c, '#2a1824', 31, 0, 2, 14); [3, 6, 9].forEach(y => R(c, '#c9a04a', 29, y, 6, 1)); R(c, '#c9a04a', 30, 0, 4, 1); // spire
+    R(c, '#6b6677', 2, 109, 60, 11); R(c, '#8a859a', 2, 109, 60, 2); R(c, '#55505f', 6, 115, 52, 5);                   // stone base
+  }
 }
 function disc(c, s, base, edge, craters) {
   const r = s / 2;
