@@ -18,12 +18,4 @@ const game = new Phaser.Game({
   input: { activePointers: 4 },
   scene: [Boot, Menu, Worries, Intro, Play, Results]
 });
-const updateFullscreenScale = () => {
-  const mode = document.fullscreenElement || document.webkitFullscreenElement ? Phaser.Scale.ENVELOP : Phaser.Scale.FIT;
-  game.scale.scaleMode = mode;
-  game.scale.displaySize.setAspectMode(mode);
-  game.scale.refresh();
-};
-document.addEventListener('fullscreenchange', updateFullscreenScale);
-document.addEventListener('webkitfullscreenchange', updateFullscreenScale);
 window.__game = game;   // handy for debugging in the console

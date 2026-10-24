@@ -8,7 +8,6 @@ html, body { margin: 0; height: 100%; background: #0b0818; overflow: hidden; ove
 #game { flex: 1; min-height: 0; width: 100%; }
 canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
 body.fs #app { padding: 0; }
-body.fs #game { flex: 1; width: 100%; height: 100%; }
 
 /* ---------- PORTRAIT: canvas on top (16:9), controls / menu below ---------- */
 @media (orientation: portrait) {
