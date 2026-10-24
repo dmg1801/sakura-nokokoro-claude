@@ -58,6 +58,9 @@ body.touch[data-scene=play] #pad { display: block; }
 }
 .menu-btn { width: 100%; font-size: 17px; min-height: 48px; }
 @media (orientation: landscape) { #menu .menu-btn { min-height: 44px; padding: 8px 10px; } }
+.language-picker { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--paper); font: 14px sans-serif; }
+.language-picker select { min-height: 42px; max-width: 120px; padding: 6px 10px; border: 2px solid var(--pink); border-radius: 8px; color: var(--paper); background: #2a1a4a; font: bold 14px sans-serif; }
+.language-picker select:focus-visible { outline: 3px solid #ffd23f; outline-offset: 2px; }
 
 /* ---------- modal panels ---------- */
 #ui { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(10, 6, 24, .62); padding: calc(var(--sa-t) + 8px) calc(var(--sa-r) + 8px) calc(var(--sa-b) + 8px) calc(var(--sa-l) + 8px); z-index: 5; }

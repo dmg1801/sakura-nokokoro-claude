@@ -1,10 +1,10 @@
 // DOM overlays (worries form, settings, instructions) + Phaser button helper.
 // All text is inserted with textContent, never innerHTML, so user input cannot inject markup.
 import Phaser from 'phaser';
-import labels from '../config/labels.json';
 import gp from '../config/gameplay.json';
 import { sanitizeWorry } from './logic.js';
 import { saveSettings } from './settings.js';
+import { getLabels, getLanguage, setLanguage } from './i18n.js';
 
 const root = () => document.getElementById('ui');
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -16,12 +16,14 @@ function panel(title) {
 }
 
 export function showInstructions(onClose) {
+  const labels = getLabels();
   const p = panel(labels.instrTitle);
   const ul = el('ul'); labels.instr.forEach(t => ul.append(el('li', null, t))); p.append(ul, el('p', 'small', labels.disclaimer));
   const b = el('button', 'btn', labels.back); b.onclick = () => { closeOverlay(); onClose && onClose(); }; p.append(b); b.focus();
 }
 
 export function showSettings(settings, audio, onClose) {
+  const labels = getLabels();
   const p = panel(labels.settingsTitle);
   const save = () => { saveSettings(settings); audio.apply(); };
   const check = (key, text) => { const l = el('label', 'row'); const i = el('input'); i.type = 'checkbox'; i.checked = !!settings[key];
@@ -34,8 +36,9 @@ export function showSettings(settings, audio, onClose) {
 
 /** Worries form. onSubmit(array<string>) receives 0..5 sanitized strings. */
 export function showWorries(onSubmit, onBack) {
+  const labels = getLabels();
   const p = panel(labels.worriesTitle);
-  p.append(el('p', 'sub', labels.worriesTitleEn), el('p', null, labels.worriesBody), el('p', 'small', labels.worriesBodyEn));
+  p.append(el('p', null, labels.worriesBody));
   const list = el('div', 'list'), err = el('p', 'err'); err.setAttribute('role', 'alert');
   const addBtn = el('button', 'btn ghost', labels.add), chips = el('div', 'chips');
   const rows = () => [...list.children];
@@ -89,23 +92,46 @@ export const uiK = scene => Math.min(1.6, Math.max(1, scene.scale.displayScale.x
 
 // ---- DOM menu (title screen buttons). Sits at the right in landscape and under the canvas in portrait. ----
 export function showMenu(items) {
+  const labels = getLabels();
   const m = document.getElementById('menu'); m.replaceChildren();
   items.forEach(it => { const b = el('button', 'btn menu-btn' + (it.primary ? ' primary' : ''), it.label); b.type = 'button'; b.onclick = it.onClick; m.append(b); });
   m.append(el('p', 'tip', labels.tip)); m.classList.add('open');
 }
 export function hideMenu() { const m = document.getElementById('menu'); m.replaceChildren(); m.classList.remove('open'); }
 
+export function showLanguagePicker(onChange) {
+  const labels = getLabels();
+  const row = el('label', 'language-picker');
+  row.append(el('span', null, labels.language));
+  const select = el('select');
+  select.setAttribute('aria-label', labels.language);
+  [[ 'en', labels.english ], [ 'es', labels.spanish ]].forEach(([code, name]) => {
+    const option = el('option', null, name);
+    option.value = code;
+    option.selected = code === getLanguage();
+    select.append(option);
+  });
+  select.onchange = () => { setLanguage(select.value); onChange(); };
+  row.append(select);
+  document.getElementById('menu').append(row);
+}
+
 export function showPause({ onResume, onRestart, onMenu }) {
+  const labels = getLabels();
   const p = panel(labels.paused);
   [[labels.resume, onResume, 'primary'], [labels.restart, onRestart, ''], [labels.mainMenu, onMenu, '']].forEach(([t, fn, c]) => {
     const b = el('button', 'btn menu-btn ' + c, t); b.type = 'button'; b.onclick = fn; p.append(b); });
 }
 
 export function showResults({ win, quote, onRetry, onNew, onMenu }) {
+  const labels = getLabels();
+  const language = getLanguage();
   const p = panel(win ? labels.winTitle : labels.loseTitle); p.classList.add('results');
   if (win) {
-    const q = el('blockquote', null, '“' + quote.original + '”'); q.lang = quote.lang;
-    p.append(q, el('p', 'es', quote.es), el('p', 'small', '— ' + quote.author + ' · ' + quote.source));
+    const q = el('blockquote', null, '“' + quote[language] + '”'); q.lang = language;
+    const author = language === 'en' ? quote.authorEn : quote.author;
+    const source = language === 'en' ? quote.sourceEn : quote.source;
+    p.append(q, el('p', 'small', '— ' + author + ' · ' + source));
   } else p.append(el('p', null, labels.loseBody));
   const bar = el('div', 'bar col');
   const add = (t, fn, c) => { const b = el('button', 'btn ' + (c || ''), t); b.type = 'button'; b.onclick = fn; bar.append(b); return b; };

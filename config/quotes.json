@@ -4,97 +4,133 @@
     {
       "original": "Non quia difficilia sunt non audemus, sed quia non audemus difficilia sunt.",
       "lang": "la",
+      "en": "We do not dare because things are difficult; they are difficult because we do not dare.",
       "es": "No nos atrevemos a muchas cosas porque son difíciles; son difíciles porque no nos atrevemos.",
       "author": "Séneca",
+      "authorEn": "Seneca",
       "source": "Epistulae morales ad Lucilium 104, 26",
+      "sourceEn": "Moral Letters to Lucilius 104.26",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     },
     {
       "original": "Audentes fortuna iuvat.",
       "lang": "la",
+      "en": "Fortune favors the brave.",
       "es": "La fortuna ayuda a los audaces.",
       "author": "Virgilio",
+      "authorEn": "Virgil",
       "source": "Eneida X, 284",
+      "sourceEn": "Aeneid 10.284",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     },
     {
       "original": "Possunt quia posse videntur.",
       "lang": "la",
+      "en": "They can, because they think they can.",
       "es": "Pueden porque creen que pueden.",
       "author": "Virgilio",
+      "authorEn": "Virgil",
       "source": "Eneida V, 231",
+      "sourceEn": "Aeneid 5.231",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     },
     {
       "original": "Gutta cavat lapidem, non vi, sed saepe cadendo.",
       "lang": "la",
+      "en": "A drop hollows a stone, not by force but by falling often.",
       "es": "La gota horada la piedra, no por su fuerza, sino por caer muchas veces.",
       "author": "Ovidio",
+      "authorEn": "Ovid",
       "source": "Epistulae ex Ponto IV, 10, 5",
+      "sourceEn": "Epistles from Pontus 4.10.5",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     },
     {
       "original": "Ducunt volentem fata, nolentem trahunt.",
       "lang": "la",
+      "en": "Fate guides those who are willing and drags those who are unwilling.",
       "es": "El destino guía a quien lo acepta y arrastra a quien se resiste.",
       "author": "Séneca",
+      "authorEn": "Seneca",
       "source": "Epistulae morales ad Lucilium 107, 11 (versión latina de un verso de Cleantes)",
+      "sourceEn": "Moral Letters to Lucilius 107.11 (Latin version of a verse by Cleanthes)",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     },
     {
       "original": "Non est ad astra mollis e terris via.",
       "lang": "la",
+      "en": "The way from earth to the stars is not an easy one.",
       "es": "No es suave el camino que va de la tierra a las estrellas.",
       "author": "Séneca",
+      "authorEn": "Seneca",
       "source": "Hercules furens, v. 437",
+      "sourceEn": "Hercules Furens, line 437",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     },
     {
       "original": "千里之行，始於足下。",
       "lang": "zh",
+      "en": "A journey of a thousand miles begins beneath your feet.",
       "es": "El viaje de mil millas empieza bajo tus pies.",
       "author": "Laozi",
+      "authorEn": "Laozi",
       "source": "Daodejing, cap. 64",
+      "sourceEn": "Tao Te Ching, chapter 64",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     },
     {
       "original": "Carpe diem, quam minimum credula postero.",
       "lang": "la",
+      "en": "Seize the day, putting as little trust as possible in tomorrow.",
       "es": "Aprovecha el día, confiando lo mínimo en el mañana.",
       "author": "Horacio",
+      "authorEn": "Horace",
       "source": "Odas I, 11",
+      "sourceEn": "Odes 1.11",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     },
     {
       "original": "Nil desperandum Teucro duce et auspice Teucro.",
       "lang": "la",
+      "en": "There is no cause for despair, with Teucer as leader and guide.",
       "es": "Nada hay de qué desesperar.",
       "author": "Horacio",
+      "authorEn": "Horace",
       "source": "Odas I, 7, 27",
+      "sourceEn": "Odes 1.7.27",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     },
     {
       "original": "Homo sum, humani nihil a me alienum puto.",
       "lang": "la",
+      "en": "I am human; I consider nothing human to be foreign to me.",
       "es": "Soy humano; nada humano me es ajeno.",
       "author": "Terencio",
+      "authorEn": "Terence",
       "source": "Heautontimorumenos, v. 77",
+      "sourceEn": "The Self-Tormentor, line 77",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     },
     {
       "original": "Ταράσσει τοὺς ἀνθρώπους οὐ τὰ πράγματα, ἀλλὰ τὰ περὶ τῶν πραγμάτων δόγματα.",
       "lang": "grc",
+      "en": "People are disturbed not by things, but by their views about things.",
       "es": "Lo que inquieta a las personas no son las cosas, sino las ideas que se hacen sobre ellas.",
       "author": "Epicteto",
+      "authorEn": "Epictetus",
       "source": "Enquiridión 5",
+      "sourceEn": "Enchiridion 5",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     },
     {
       "original": "Τῶν ὄντων τὰ μέν ἐστιν ἐφ’ ἡμῖν, τὰ δὲ οὐκ ἐφ’ ἡμῖν.",
       "lang": "grc",
+      "en": "Some things are within our power, while others are not.",
       "es": "De las cosas, unas dependen de nosotros y otras no.",
       "author": "Epicteto",
+      "authorEn": "Epictetus",
       "source": "Enquiridión 1",
+      "sourceEn": "Enchiridion 1",
       "sourceNote": "Obra clásica de dominio público; verificar edición."
     }
   ]

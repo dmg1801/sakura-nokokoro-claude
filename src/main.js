@@ -7,9 +7,8 @@ import { Intro } from './scenes/Intro.js';
 import { Play } from './scenes/Play.js';
 import { Results } from './scenes/Results.js';
 import { initControls } from './controls.js';
-import labels from '../config/labels.json';
 
-initControls(labels);
+initControls();
 
 const game = new Phaser.Game({
   type: Phaser.AUTO, width: W, height: H, parent: 'game', pixelArt: true, roundPixels: true, backgroundColor: '#0b0818',

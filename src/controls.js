@@ -1,5 +1,7 @@
 // DOM controls: on-screen pad (left / right / jump / slash) and tool buttons (pause, sound, fullscreen, restart).
 // They live outside the Phaser canvas so they keep a finger-sized touch target in portrait AND landscape.
+import { getLabels } from './i18n.js';
+
 export const touchState = { left: false, right: false, jumpQ: false, slashQ: false };
 export const bus = new EventTarget();                 // emits 'action' events: detail = 'pause' | 'mute' | 'restart'
 
@@ -59,23 +61,24 @@ function tapBtn(btn, key) {
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => btn.addEventListener(ev, () => btn.classList.remove('on')));
 }
 
-export function initControls(labels) {
+export function initControls() {
+  const labels = getLabels();
   const touch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window || new URLSearchParams(location.search).has('touch');
   document.body.classList.toggle('touch', touch);
   document.addEventListener('contextmenu', e => e.preventDefault());
 
   // ---- tools ----
   const tools = document.getElementById('tools'); tools.replaceChildren();
-  const tool = (cls, icon, label, fn) => { const b = mk('button', 'tool ' + cls, icon); b.type = 'button'; b.setAttribute('aria-label', label); b.title = label;
+  const tool = (cls, icon, labelKey, fn) => { const b = mk('button', 'tool ' + cls, icon); b.type = 'button'; b.dataset.labelKey = labelKey;
     b.addEventListener('mousedown', e => e.preventDefault()); b.addEventListener('click', () => { fn(); b.blur(); }); tools.append(b); return b; };
-  tool('play-only', ICON.pause, labels.pause, () => bus.dispatchEvent(new CustomEvent('action', { detail: 'pause' })));
-  tool('play-only snd', ICON.sound, labels.sound, () => bus.dispatchEvent(new CustomEvent('action', { detail: 'mute' })));
+  tool('play-only', ICON.pause, 'pause', () => bus.dispatchEvent(new CustomEvent('action', { detail: 'pause' })));
+  tool('play-only snd', ICON.sound, 'sound', () => bus.dispatchEvent(new CustomEvent('action', { detail: 'mute' })));
   if (fsAvailable) {
-    const fs = tool('fs', ICON.fsIn + ICON.fsOut, labels.fullEnter, toggleFs);
-    const sync = () => { document.body.classList.toggle('fs', isFs()); fs.setAttribute('aria-label', isFs() ? labels.fullExit : labels.fullEnter); fs.title = fs.getAttribute('aria-label'); };
+    const fs = tool('fs', ICON.fsIn + ICON.fsOut, 'fullEnter', toggleFs);
+    const sync = () => document.body.classList.toggle('fs', isFs());
     document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync); sync();
   }
-  tool('play-only', ICON.restart, labels.restart, () => bus.dispatchEvent(new CustomEvent('action', { detail: 'restart' })));
+  tool('play-only', ICON.restart, 'restart', () => bus.dispatchEvent(new CustomEvent('action', { detail: 'restart' })));
 
   // ---- pad ----
   const pad = document.getElementById('pad'); pad.replaceChildren();
@@ -85,4 +88,23 @@ export function initControls(labels) {
   const j = btn('p-jump', ICON.jump, labels.ctrlJump), s = btn('p-slash', ICON.slash, labels.ctrlSlash);
   holdBtn(l, 'left'); holdBtn(r, 'right'); tapBtn(j, 'jumpQ'); tapBtn(s, 'slashQ');
   const cl = mk('div', 'cluster cl-left'), cr = mk('div', 'cluster cl-right'); cl.append(l, r); cr.append(j, s); pad.append(cl, cr);
+  const relabel = () => {
+    const current = getLabels();
+    tools.querySelectorAll('[data-label-key]').forEach(button => {
+      const key = button.dataset.labelKey;
+      const label = key === 'fullEnter' && isFs() ? current.fullExit : current[key];
+      button.setAttribute('aria-label', label);
+      button.title = label;
+    });
+    l.setAttribute('aria-label', current.ctrlLeft);
+    r.setAttribute('aria-label', current.ctrlRight);
+    j.setAttribute('aria-label', current.ctrlJump);
+    s.setAttribute('aria-label', current.ctrlSlash);
+    j.lastChild.textContent = current.ctrlJump;
+    s.lastChild.textContent = current.ctrlSlash;
+  };
+  window.addEventListener('languagechange', relabel);
+  document.addEventListener('fullscreenchange', relabel);
+  document.addEventListener('webkitfullscreenchange', relabel);
+  relabel();
 }

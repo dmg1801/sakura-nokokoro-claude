@@ -5,6 +5,8 @@ import { sanitizeWorry, spawnInterval, sample, mixColor, isDay, pickQuote } from
 
 const cfg = JSON.parse(readFileSync(new URL('../config/gameplay.json', import.meta.url)));
 const quotes = JSON.parse(readFileSync(new URL('../config/quotes.json', import.meta.url))).quotes;
+const labelsEn = JSON.parse(readFileSync(new URL('../config/labels.en.json', import.meta.url)));
+const labelsEs = JSON.parse(readFileSync(new URL('../config/labels.json', import.meta.url)));
 
 test('sanitize: blank, unsafe, symbols-only rejected', () => {
   assert.equal(sanitizeWorry('   ').error, 'blank');
@@ -30,8 +32,17 @@ test('sample + mixColor', () => {
 });
 test('quotes: >=12 complete entries, pickQuote works', () => {
   assert.ok(quotes.length >= 12);
-  for (const q of quotes) for (const k of ['original', 'es', 'author', 'source']) assert.ok(q[k], k);
+  for (const q of quotes) for (const k of ['original', 'en', 'es', 'author', 'authorEn', 'source', 'sourceEn']) assert.ok(q[k], k);
   assert.equal(pickQuote(quotes, () => 0), quotes[0]);
+});
+test('English and Spanish label catalogs have matching keys and complete translations', () => {
+  assert.deepEqual(Object.keys(labelsEn).sort(), Object.keys(labelsEs).sort());
+  for (const labels of [labelsEn, labelsEs]) {
+    for (const key of Object.keys(labels)) assert.ok(labels[key], key);
+    assert.equal(labels.instr.length, 6);
+    assert.equal(labels.suggestions.length, 7);
+    assert.equal(labels.defaultWorries.length, 5);
+  }
 });
 test('config sanity', () => {
   assert.equal(cfg.duration, 120); assert.equal(cfg.petals.start, 12);

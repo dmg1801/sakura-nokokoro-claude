@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import gp from '../../config/gameplay.json';
-import labels from '../../config/labels.json';
 import { World } from '../entities/World.js';
 import { Samurai } from '../entities/Samurai.js';
 import { Ninja } from '../entities/Ninja.js';
@@ -9,6 +8,7 @@ import { InputManager } from '../input.js';
 import { showPause, closeOverlay } from '../ui.js';
 import { bus, setSceneMode, setMuted } from '../controls.js';
 import { spawnInterval, isDay } from '../logic.js';
+import { getLabels } from '../i18n.js';
 
 export class Play extends Phaser.Scene {
   constructor() { super('Play'); }
@@ -16,10 +16,11 @@ export class Play extends Phaser.Scene {
     setSceneMode('play');
     this.settings = this.registry.get('settings'); this.audio = this.registry.get('audio');
     this.world = new World(this, gp, this.settings); this.tree = this.world.tree; this.fx = this.world.fx;
+    const labels = getLabels();
     this.input_ = new InputManager(this);
     this.sam = new Samurai(this, 250, gp, this.input_, this.audio, this.settings);
     this.ninjas = []; this.elapsed = 0; this.spawnT = 1.5; this.spawned = 0; this.state = 'play'; this.lastNight = null;
-    this.worries = this.registry.get('worries').length ? this.registry.get('worries') : gp.defaultWorries;
+    this.worries = this.registry.get('worries').length ? this.registry.get('worries') : labels.defaultWorries;
     this.hud = new HUD(this, gp); setMuted(!(this.settings.sound && this.settings.music));
     this.onAction = e => { if (this.state !== 'play') return; if (e.detail === 'pause') this.setPaused(!this.paused); else if (e.detail === 'mute') this.toggleMute(); else if (e.detail === 'restart') { closeOverlay(); this.scene.restart(); } };
     bus.addEventListener('action', this.onAction);

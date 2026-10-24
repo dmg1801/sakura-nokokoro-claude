@@ -1,10 +1,11 @@
 import { W } from '../consts.js';
 import { txt, uiK } from '../ui.js';
-import labels from '../../config/labels.json';
+import { getLabels } from '../i18n.js';
 
 // Canvas HUD: petals, timer, day/night label. Buttons live in the DOM (src/controls.js).
 export class HUD {
   constructor(scene, cfg) {
+    const labels = getLabels();
     const k = uiK(scene), ik = Math.min(k, 1.4); this.max = cfg.petals.max;
     this.icons = Array.from({ length: this.max }, (_, i) => scene.add.image(12 * ik + i * 15 * ik, 16 * ik, 'petal').setScale(2.6 * ik).setDepth(50));
     this.timer = txt(scene, W / 2, 16 * k, '2:00', 24 * k).setDepth(50);

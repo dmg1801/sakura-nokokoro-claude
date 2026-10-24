@@ -44,8 +44,9 @@ Si usas un dominio propio en la raíz, pon `VITE_BASE=/`.
 | Archivo | Contenido |
 |---|---|
 | `config/gameplay.json` | duración, pétalos, límite de texto, velocidades, físicas, tiempos del tajo (anticipación/impacto/recuperación), IA del ninja, **tabla de aparición** (`spawn`), ajustes de audio por defecto, `assets` |
-| `config/labels.json` | todos los textos de la interfaz (español; añade tus traducciones) |
-| `config/quotes.json` | banco de citas (original, español, autor, fuente, nota) |
+| `config/labels.json` | textos de la interfaz en español |
+| `config/labels.en.json` | textos de la interfaz en inglés |
+| `config/quotes.json` | banco de citas originales y traducciones en inglés/español, con autor y fuente |
 | `src/entities/DayNightController.js` | paleta del cielo (`SKY`) y curva de noche (`NIGHT`) |
 | `src/art.js` | arte procedural (colores y formas) |
 | `src/audio.js` | escala, tempo y sonidos procedurales |
@@ -53,7 +54,7 @@ Si usas un dominio propio en la raíz, pon `VITE_BASE=/`.
 Los JSON se incluyen al compilar: tras editar, reinicia `npm run dev` o vuelve a hacer build.
 
 ### Citas
-12 citas de autores de **dominio público** (Séneca, Virgilio, Ovidio, Horacio, Terencio, Epicteto, Laozi), con obra y pasaje. Las **traducciones al español son libres** y están hechas para este proyecto; **contrasta cada pasaje con una edición crítica antes de publicar**. No hay citas atribuidas a figuras modernas. Para añadir una, copia una entrada y rellena `original`, `es`, `author`, `source`, `sourceNote`.
+La interfaz está en inglés por defecto; el selector del menú permite cambiar a español y recuerda la elección en este navegador. Mantén las mismas claves en ambos archivos de etiquetas al añadir textos. Las 12 citas de autores de **dominio público** incluyen traducciones al inglés y al español. Las traducciones son libres y conviene contrastar cada pasaje con una edición crítica antes de publicar. No hay citas atribuidas a figuras modernas. Para añadir una, copia una entrada y rellena `original`, `en`, `es`, `author`, `authorEn`, `source`, `sourceEn` y `sourceNote`.
 
 ## Reemplazar arte (PNG)
 1. Coloca el PNG en `public/assets/` (p. ej. `public/assets/samurai_idle.png`).

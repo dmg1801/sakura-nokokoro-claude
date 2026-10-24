@@ -1,15 +1,16 @@
 import Phaser from 'phaser';
 import gp from '../../config/gameplay.json';
-import labels from '../../config/labels.json';
 import { World } from '../entities/World.js';
-import { txt, showSettings, showInstructions, showMenu, hideMenu } from '../ui.js';
+import { txt, showSettings, showInstructions, showMenu, showLanguagePicker, hideMenu } from '../ui.js';
 import { setSceneMode } from '../controls.js';
 import { W } from '../consts.js';
+import { getLabels } from '../i18n.js';
 
 export class Menu extends Phaser.Scene {
   constructor() { super('Menu'); }
   create() {
     setSceneMode('menu');
+    const labels = getLabels();
     this.settings = this.registry.get('settings'); this.audio = this.registry.get('audio');
     this.audio.setMode('ambient');
     const unlockAudio = () => {
@@ -27,7 +28,11 @@ export class Menu extends Phaser.Scene {
     showMenu([{ label: labels.play, primary: true, onClick: play },
       { label: labels.settings, onClick: () => showSettings(this.settings, this.audio) },
       { label: labels.instructions, onClick: () => showInstructions() }]);
-    this.input.keyboard.on('keydown-ENTER', () => { if (!document.getElementById('ui').classList.contains('open')) play(); });
+    showLanguagePicker(() => this.scene.restart());
+    this.input.keyboard.on('keydown-ENTER', event => {
+      if (event.target === document.querySelector('#menu select')) return;
+      if (!document.getElementById('ui').classList.contains('open')) play();
+    });
     this.events.once('shutdown', () => {
       document.removeEventListener('pointerdown', unlockAudio);
       document.removeEventListener('keydown', unlockAudio);
