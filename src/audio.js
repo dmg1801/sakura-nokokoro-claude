@@ -1,9 +1,10 @@
-// Procedural Web Audio: original Japanese-inspired music (Hirajoshi scale, koto-like plucks, taiko) + SFX.
+// Procedural Web Audio: original Japanese-inspired menu and battle themes + SFX.
 // Nothing starts until unlock() is called from a user gesture.
-// To use your own files instead, replace the bodies of music()/sfx methods with HTMLAudio/Phaser sounds.
 const SCALE = [0, 2, 3, 7, 8];            // Hirajoshi
 const D4 = 293.66;
 const note = (deg) => D4 * Math.pow(2, (SCALE[((deg % 5) + 5) % 5] + 12 * Math.floor(deg / 5)) / 12);
+const MENU_MELODY = [7, null, 5, null, 3, null, 5, null, 7, null, 10, null, 8, null, 5, null];
+const BATTLE_MELODY = [2, null, 2, 5, null, 3, null, 7, 5, null, 2, null, 8, null, 5, 3];
 
 export class AudioManager {
   constructor(settings) { this.s = settings; this.ctx = null; this.mode = 'off'; this.step = 0; this.deg = 5; this.timer = null; }
@@ -29,29 +30,32 @@ export class AudioManager {
     this.musicG.gain.setTargetAtTime(s.sound && s.music ? s.musicVol * 0.5 : 0, t, 0.05);
     this.sfxG.gain.setTargetAtTime(s.sound ? s.sfxVol * 0.7 : 0, t, 0.05);
   }
-  setMode(m) { if (m !== this.mode) { this.mode = m; this.next = 0; } }
+  setMode(m) { if (m !== this.mode) { this.mode = m; this.step = 0; this.next = 0; } }
 
   // ---------- music scheduler ----------
   tick() {
     const c = this.ctx; if (!c || c.state !== 'running' || this.mode === 'off') return;
-    const stepDur = this.mode === 'battle' ? 0.30 : 0.5;
+    const battle = this.mode === 'battle';
+    const stepDur = battle ? 0.30 : 0.52;
     if (!this.next || this.next < c.currentTime) this.next = c.currentTime + 0.05;
     while (this.next < c.currentTime + 0.3) { this.playStep(this.step++, this.next); this.next += stepDur; }
   }
   playStep(n, t) {
+    const step = n % 16;
     const battle = this.mode === 'battle';
-    if (n % 32 === 0) this.pad(note(-5), t, 6);
-    if (battle) {
-      if (n % 4 === 0) this.taiko(t, 1); else if (n % 4 === 2) this.taiko(t, 0.45);
-      if (n % 2 === 1) this.wood(t, 0.5);
+    const melody = battle ? BATTLE_MELODY : MENU_MELODY;
+
+    if (!battle) {
+      if (step === 0) this.pad(note(-5), t, 7.5);
+      if (step % 4 === 0) this.wood(t, 0.12);
     } else {
-      if (n % 16 === 0) this.taiko(t, 0.55);
-      if (n % 8 === 4) this.wood(t, 0.3);
+      const drum = [1, 0, 0.5, 0, 0.8, 0, 0.45, 0, 1, 0, 0.55, 0, 0.8, 0, 0.45, 0];
+      if (drum[step]) this.taiko(t, drum[step]);
+      if (step === 3 || step === 7 || step === 11 || step === 15) this.wood(t, 0.38);
+      if (step === 0 || step === 8) this.pad(note(-7), t, 2.2);
     }
-    if (Math.random() < (battle ? 0.65 : 0.4)) {                  // random-walk melody
-      this.deg = Math.max(0, Math.min(11, this.deg + [-2, -1, -1, 1, 1, 2][(Math.random() * 6) | 0]));
-      this.pluck(note(this.deg), t, battle ? 0.7 : 1.4);
-    }
+
+    if (melody[step] !== null) this.pluck(note(melody[step]), t, battle ? 0.42 : 1.3);
   }
   pluck(f, t, dur) {
     const c = this.ctx, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain();

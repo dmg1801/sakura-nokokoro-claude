@@ -11,6 +11,14 @@ export class Menu extends Phaser.Scene {
   create() {
     setSceneMode('menu');
     this.settings = this.registry.get('settings'); this.audio = this.registry.get('audio');
+    this.audio.setMode('ambient');
+    const unlockAudio = () => {
+      this.audio.unlock();
+      document.removeEventListener('pointerdown', unlockAudio);
+      document.removeEventListener('keydown', unlockAudio);
+    };
+    document.addEventListener('pointerdown', unlockAudio);
+    document.addEventListener('keydown', unlockAudio);
     this.world = new World(this, gp, this.settings);
     this.add.image(250, 296, 'sam_sit').setOrigin(0.5, 1).setDepth(21);
     txt(this, W / 2, 44, labels.title, 52, { stroke: 7 }).setDepth(50);
@@ -20,7 +28,11 @@ export class Menu extends Phaser.Scene {
       { label: labels.settings, onClick: () => showSettings(this.settings, this.audio) },
       { label: labels.instructions, onClick: () => showInstructions() }]);
     this.input.keyboard.on('keydown-ENTER', () => { if (!document.getElementById('ui').classList.contains('open')) play(); });
-    this.events.once('shutdown', hideMenu);
+    this.events.once('shutdown', () => {
+      document.removeEventListener('pointerdown', unlockAudio);
+      document.removeEventListener('keydown', unlockAudio);
+      hideMenu();
+    });
   }
   update(time, delta) { this.world.update(time, delta / 1000, 0.07); }
 }
