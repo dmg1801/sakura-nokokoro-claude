@@ -37,8 +37,14 @@ export class Ninja {
     } else if (this.state === 'wind') {                                         // anticipation: yellow flash before striking
       this.s.setTint(Math.floor(this.t * 20) % 2 ? 0xffe14a : 0xffffff); dir = Math.sign(sam.x - this.x) || 1;
       if (this.t >= this.c.attackWindup) {
-        if (Math.abs(sam.x - this.x) < this.c.attackRange + 8 && Math.abs(sam.y - this.y) < 28) sam.hurt(this.x);
-        this.state = 'recover'; this.t = 0; this.s.clearTint(); this.atkCd = this.c.attackRecover + 0.6;
+        const hit = Math.abs(sam.x - this.x) < this.c.attackRange + 8 && Math.abs(sam.y - this.y) < 28 && sam.hurt(this.x);
+        this.s.clearTint(); this.t = 0;
+        if (hit) {
+          if (tree.losePetal()) audio.steal();
+          this.state = 'flee'; this.side = this.x < sam.x ? -1 : 1;
+        } else {
+          this.state = 'recover'; this.atkCd = this.c.attackRecover + 0.6;
+        }
       }
     } else if (this.state === 'recover') { if (this.t >= this.c.attackRecover) this.state = 'walk'; dir = Math.sign(sam.x - this.x) || 1; }
     else if (this.state === 'flee') { dir = this.side; this.x += dir * this.speed * 1.9 * dt; this.anim += dt * 12; if (this.x < -40 || this.x > W + 40) { this.destroy(); return; } }

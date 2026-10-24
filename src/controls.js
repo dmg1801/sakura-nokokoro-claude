@@ -5,12 +5,32 @@ export const bus = new EventTarget();                 // emits 'action' events: 
 
 export const fsAvailable = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
 export const isFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
-export function toggleFs() {
+export async function toggleFs() {
   const app = document.getElementById('app');
+  const orientation = screen.orientation;
+  if (isFs()) {
+    const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;
+    if (exitFullscreen) {
+      try { await exitFullscreen.call(document); }
+      catch (error) { console.warn('No se pudo salir de pantalla completa:', error); }
+    }
+    if (orientation?.unlock) orientation.unlock();
+    return;
+  }
+
+  const requestFullscreen = app.requestFullscreen || app.webkitRequestFullscreen;
+  if (!requestFullscreen) return;
   try {
-    if (isFs()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-    else (app.requestFullscreen || app.webkitRequestFullscreen).call(app, { navigationUI: 'hide' });
-  } catch (e) { /* browser refused */ }
+    await requestFullscreen.call(app, { navigationUI: 'hide' });
+  } catch (error) {
+    console.warn('No se pudo activar la pantalla completa:', error);
+    return;
+  }
+
+  if (orientation?.lock) {
+    try { await orientation.lock('landscape'); }
+    catch (error) { console.warn('El navegador no permitió fijar la orientación horizontal:', error); }
+  }
 }
 export const setSceneMode = m => { document.body.dataset.scene = m; };
 export const setMuted = m => document.body.classList.toggle('muted', !!m);
