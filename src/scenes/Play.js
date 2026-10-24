@@ -67,12 +67,12 @@ export class Play extends Phaser.Scene {
   }
   lose() {
     this.state = 'lost'; this.audio.lose(); this.audio.setMode('ambient'); this.sam.freeze(); this.hud.set(gp.duration - this.elapsed, 0, isDay(this.elapsed, gp.duration));
-    this.time.delayedCall(700, () => this.scene.launch('Results', { win: false }));
+    this.time.delayedCall(700, () => this.scene.start('Results', { win: false }));
   }
   win() {
     this.state = 'won'; this.hud.set(0, this.tree.petals, false);
     this.ninjas.forEach(n => !n.dead && n.die(false, this.fx));                // enemies vanish
     this.sam.freeze(); this.tree.bloom(); this.audio.win(); this.audio.setMode('ambient');
-    this.time.delayedCall(3600, () => this.scene.launch('Results', { win: true }));
+    this.time.delayedCall(3600, () => this.scene.start('Results', { win: true }));
   }
 }
