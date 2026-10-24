@@ -1,13 +1,12 @@
-// Procedural Web Audio: original Japanese-inspired menu and battle themes + SFX.
+// Background music uses the provided WAV tracks; sound effects use Web Audio.
 // Nothing starts until unlock() is called from a user gesture.
-const SCALE = [0, 2, 3, 7, 8];            // Hirajoshi
-const D4 = 293.66;
-const note = (deg) => D4 * Math.pow(2, (SCALE[((deg % 5) + 5) % 5] + 12 * Math.floor(deg / 5)) / 12);
-const MENU_MELODY = [7, null, 5, null, 3, null, 5, null, 7, null, 10, null, 8, null, 5, null];
-const BATTLE_MELODY = [2, null, 2, 5, null, 3, null, 7, 5, null, 2, null, 8, null, 5, 3];
+const MUSIC_TRACKS = {
+  ambient: new URL('../samurai-sakura-menu.wav', import.meta.url).href,
+  battle: new URL('../samurai-sakura-game-battle.wav', import.meta.url).href
+};
 
 export class AudioManager {
-  constructor(settings) { this.s = settings; this.ctx = null; this.mode = 'off'; this.step = 0; this.deg = 5; this.timer = null; }
+  constructor(settings) { this.s = settings; this.ctx = null; this.mode = 'off'; this.musicBuffers = new Map(); this.currentTrack = null; this.musicLoad = null; }
   get ready() { return !!this.ctx && this.ctx.state === 'running'; }
 
   unlock() {
@@ -19,9 +18,20 @@ export class AudioManager {
       const len = c.sampleRate * 0.6, b = c.createBuffer(1, len, c.sampleRate), d = b.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       this.noise = b;
-      this.timer = setInterval(() => this.tick(), 90);
+      this.musicLoad = Promise.all(Object.entries(MUSIC_TRACKS).map(async ([mode, url]) => {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status} al cargar ${url}`);
+        const buffer = await c.decodeAudioData(await response.arrayBuffer());
+        this.musicBuffers.set(mode, buffer);
+      })).then(() => this.syncMusic()).catch(error => {
+        console.error('No se pudieron cargar las pistas de música:', error);
+      });
     }
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume().then(() => this.syncMusic()).catch(error => {
+        console.error('No se pudo reanudar el audio:', error);
+      });
+    }
     this.apply();
   }
   apply() {
@@ -30,53 +40,40 @@ export class AudioManager {
     this.musicG.gain.setTargetAtTime(s.sound && s.music ? s.musicVol * 0.5 : 0, t, 0.05);
     this.sfxG.gain.setTargetAtTime(s.sound ? s.sfxVol * 0.7 : 0, t, 0.05);
   }
-  setMode(m) { if (m !== this.mode) { this.mode = m; this.step = 0; this.next = 0; } }
+  setMode(mode) { if (mode !== this.mode) { this.mode = mode; this.syncMusic(); } }
+  syncMusic() {
+    const c = this.ctx;
+    if (!c || c.state !== 'running') return;
+    if (this.currentTrack?.mode === this.mode) return;
 
-  // ---------- music scheduler ----------
-  tick() {
-    const c = this.ctx; if (!c || c.state !== 'running' || this.mode === 'off') return;
-    const battle = this.mode === 'battle';
-    const stepDur = battle ? 0.30 : 0.52;
-    if (!this.next || this.next < c.currentTime) this.next = c.currentTime + 0.05;
-    while (this.next < c.currentTime + 0.3) { this.playStep(this.step++, this.next); this.next += stepDur; }
-  }
-  playStep(n, t) {
-    const step = n % 16;
-    const battle = this.mode === 'battle';
-    const melody = battle ? BATTLE_MELODY : MENU_MELODY;
-
-    if (!battle) {
-      if (step === 0) this.pad(note(-5), t, 7.5);
-      if (step % 4 === 0) this.wood(t, 0.12);
-    } else {
-      const drum = [1, 0, 0.5, 0, 0.8, 0, 0.45, 0, 1, 0, 0.55, 0, 0.8, 0, 0.45, 0];
-      if (drum[step]) this.taiko(t, drum[step]);
-      if (step === 3 || step === 7 || step === 11 || step === 15) this.wood(t, 0.38);
-      if (step === 0 || step === 8) this.pad(note(-7), t, 2.2);
+    const t = c.currentTime;
+    if (this.currentTrack) {
+      const previous = this.currentTrack;
+      this.currentTrack = null;
+      previous.gain.gain.setTargetAtTime(0, t, 0.12);
+      previous.source.stop(t + 0.7);
     }
 
-    if (melody[step] !== null) this.pluck(note(melody[step]), t, battle ? 0.42 : 1.3);
+    const buffer = this.musicBuffers.get(this.mode);
+    if (!buffer) return;
+
+    const source = c.createBufferSource(), gain = c.createGain();
+    source.buffer = buffer;
+    source.loop = true;
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.setTargetAtTime(1, t, 0.12);
+    source.connect(gain);
+    gain.connect(this.musicG);
+    const track = { mode: this.mode, source, gain };
+    source.onended = () => {
+      source.disconnect();
+      gain.disconnect();
+      if (this.currentTrack === track) this.currentTrack = null;
+    };
+    this.currentTrack = track;
+    source.start(t);
   }
-  pluck(f, t, dur) {
-    const c = this.ctx, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain();
-    o.type = 'triangle'; o2.type = 'sine'; o.frequency.value = f; o2.frequency.value = f * 2;
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.35, t + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    o.connect(g); o2.connect(g); g.connect(this.musicG); o.start(t); o2.start(t); o.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
-  }
-  pad(f, t, dur) {
-    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
-    o.type = 'sine'; o.frequency.value = f;
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.25, t + 2); g.gain.linearRampToValueAtTime(0, t + dur);
-    o.connect(g); g.connect(this.musicG); o.start(t); o.stop(t + dur + 0.1);
-  }
-  taiko(t, v) {
-    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
-    o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.25);
-    g.gain.setValueAtTime(0.9 * v, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
-    o.connect(g); g.connect(this.musicG); o.start(t); o.stop(t + 0.5);
-    this.burst(t, 0.08, 500, 'lowpass', 0.4 * v, this.musicG);
-  }
-  wood(t, v) { this.burst(t, 0.04, 1800, 'bandpass', 0.5 * v, this.musicG); }
+
   burst(t, dur, freq, type, vol, dest, sweepTo) {
     const c = this.ctx, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
     s.buffer = this.noise; f.type = type; f.frequency.setValueAtTime(freq, t);
