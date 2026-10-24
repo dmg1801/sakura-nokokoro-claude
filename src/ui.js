@@ -83,3 +83,33 @@ export function makeButton(scene, x, y, w, h, text, cb, opts = {}) {
   bg.on('pointerdown', (p) => { cb(p); });
   c.bg = bg; c.label = t; return c;
 }
+
+/** Font scale so canvas text stays readable when the canvas is shrunk (portrait phones). 1 on big screens, up to 1.6 on small ones. */
+export const uiK = scene => Math.min(1.6, Math.max(1, scene.scale.displayScale.x * 0.9));
+
+// ---- DOM menu (title screen buttons). Sits at the right in landscape and under the canvas in portrait. ----
+export function showMenu(items) {
+  const m = document.getElementById('menu'); m.replaceChildren();
+  items.forEach(it => { const b = el('button', 'btn menu-btn' + (it.primary ? ' primary' : ''), it.label); b.type = 'button'; b.onclick = it.onClick; m.append(b); });
+  m.append(el('p', 'tip', labels.tip)); m.classList.add('open');
+}
+export function hideMenu() { const m = document.getElementById('menu'); m.replaceChildren(); m.classList.remove('open'); }
+
+export function showPause({ onResume, onRestart, onMenu }) {
+  const p = panel(labels.paused);
+  [[labels.resume, onResume, 'primary'], [labels.restart, onRestart, ''], [labels.mainMenu, onMenu, '']].forEach(([t, fn, c]) => {
+    const b = el('button', 'btn menu-btn ' + c, t); b.type = 'button'; b.onclick = fn; p.append(b); });
+}
+
+export function showResults({ win, quote, onRetry, onNew, onMenu }) {
+  const p = panel(win ? labels.winTitle : labels.loseTitle); p.classList.add('results');
+  if (win) {
+    const q = el('blockquote', null, '“' + quote.original + '”'); q.lang = quote.lang;
+    p.append(q, el('p', 'es', quote.es), el('p', 'small', '— ' + quote.author + ' · ' + quote.source));
+  } else p.append(el('p', null, labels.loseBody));
+  const bar = el('div', 'bar col');
+  const add = (t, fn, c) => { const b = el('button', 'btn ' + (c || ''), t); b.type = 'button'; b.onclick = fn; bar.append(b); return b; };
+  if (!win) add(labels.retry, onRetry, 'primary');
+  const first = add(labels.newGame, onNew, win ? 'primary' : ''); add(labels.mainMenu, onMenu);
+  p.append(bar); first.focus();
+}

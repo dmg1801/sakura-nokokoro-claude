@@ -1,5 +1,5 @@
 import { GY, W, TREE_X } from '../consts.js';
-import { txt } from '../ui.js';
+import { txt, uiK } from '../ui.js';
 import { clamp } from '../logic.js';
 
 const GRAV = 1100;
@@ -8,14 +8,15 @@ export class Ninja {
     this.scene = scene; this.c = cfg.ninja; this.side = side; this.x = side < 0 ? -16 : W + 16; this.y = GY; this.vy = 0;
     this.speed = this.c.speed + (Math.random() * 2 - 1) * this.c.speedJitter;
     this.s = scene.add.sprite(this.x, this.y, 'nin0').setOrigin(0.5, 1).setDepth(20);
-    this.label = txt(scene, this.x, this.y - 34, text, 14, { stroke: 5, style: { color: '#ffffff', backgroundColor: '#120a22dd', padding: { x: 5, y: 2 } } }).setDepth(40);
+    this.k = uiK(scene);
+    this.label = txt(scene, this.x, this.y - 34, text, 14 * this.k, { wrap: this.k > 1.2 ? 230 : 0, stroke: 5, style: { color: '#ffffff', backgroundColor: '#120a22dd', padding: { x: 5, y: 2 } } }).setDepth(40);
     this.lane = lane; this.state = 'walk'; this.t = 0; this.atkCd = 1.0; this.anim = Math.random() * 3; this.dead = false;
   }
   get hurtbox() { return { x: this.x - 9, y: this.y - 26, w: 18, h: 26 }; }
   _sync(dir) {
     this.s.setPosition(this.x, this.y).setFlipX(dir < 0);
     const hw = this.label.width / 2 + 4;
-    this.label.setPosition(clamp(this.x, hw, W - hw), this.y - 32 - this.lane * 20);
+    this.label.setPosition(clamp(this.x, hw, W - hw), this.y - 32 - this.lane * 20 * this.k);
   }
   /** Intro helper: plain walk toward targetX. */
   walkTo(dt, targetX) { const d = Math.sign(targetX - this.x); if (Math.abs(targetX - this.x) > 3) { this.x += d * this.speed * dt; this.anim += dt * 8; } this.s.setTexture('nin' + (Math.floor(this.anim) % 2)); this._sync(d || 1); }

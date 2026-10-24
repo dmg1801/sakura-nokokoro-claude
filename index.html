@@ -4,18 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#0b0818" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Sakura no Kokoro 桜の心</title>
   <link rel="stylesheet" href="/src/style.css" />
 </head>
-<body>
+<body data-scene="boot">
   <div id="app">
-    <div id="game"></div>
-    <div id="ui"></div>
-    <div id="rotate" role="status">
-      <div class="phone">📱</div>
-      <p>Gira el dispositivo a horizontal<br /><small>Rotate your device to landscape</small></p>
-      <button id="rotate-ok" class="btn">Continuar de todos modos</button>
-    </div>
+    <div id="game"></div>          <!-- Phaser canvas: 16:9 playfield -->
+    <div id="menu"></div>          <!-- title-screen buttons (DOM) -->
+    <div id="tools"></div>         <!-- pause / sound / fullscreen / restart -->
+    <div id="pad"></div>           <!-- ◀ ▶  SALTO TAJO -->
+    <div id="ui"></div>            <!-- modal panels: worries, settings, pause, results -->
   </div>
   <noscript>Este juego necesita JavaScript.</noscript>
   <script type="module" src="/src/main.js"></script>

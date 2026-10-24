@@ -6,37 +6,36 @@ import { Samurai } from '../entities/Samurai.js';
 import { Ninja } from '../entities/Ninja.js';
 import { HUD } from '../entities/HUD.js';
 import { InputManager } from '../input.js';
-import { makeButton, txt } from '../ui.js';
+import { showPause, closeOverlay } from '../ui.js';
+import { bus, setSceneMode, setMuted } from '../controls.js';
 import { spawnInterval, isDay } from '../logic.js';
-import { W, H, TREE_X } from '../consts.js';
 
 export class Play extends Phaser.Scene {
   constructor() { super('Play'); }
   create() {
+    setSceneMode('play');
     this.settings = this.registry.get('settings'); this.audio = this.registry.get('audio');
     this.world = new World(this, gp, this.settings); this.tree = this.world.tree; this.fx = this.world.fx;
     this.input_ = new InputManager(this);
     this.sam = new Samurai(this, 250, gp, this.input_, this.audio, this.settings);
     this.ninjas = []; this.elapsed = 0; this.spawnT = 1.5; this.spawned = 0; this.state = 'play'; this.lastNight = null;
     this.worries = this.registry.get('worries').length ? this.registry.get('worries') : gp.defaultWorries;
-    this.hud = new HUD(this, gp, this.input_, this.audio, this.settings, { pause: () => this.setPaused(!this.paused), mute: () => this.toggleMute(), restart: () => this.scene.restart() });
+    this.hud = new HUD(this, gp); setMuted(!(this.settings.sound && this.settings.music));
+    this.onAction = e => { if (this.state !== 'play') return; if (e.detail === 'pause') this.setPaused(!this.paused); else if (e.detail === 'mute') this.toggleMute(); else if (e.detail === 'restart') { closeOverlay(); this.scene.restart(); } };
+    bus.addEventListener('action', this.onAction);
     this.audio.setMode('battle'); this.paused = false;
     this.onHidden = () => this.state === 'play' && this.setPaused(true);
     this.game.events.on(Phaser.Core.Events.HIDDEN, this.onHidden);
-    this.events.once('shutdown', () => this.game.events.off(Phaser.Core.Events.HIDDEN, this.onHidden));
+    this.events.once('shutdown', () => { this.game.events.off(Phaser.Core.Events.HIDDEN, this.onHidden); bus.removeEventListener('action', this.onAction); this.input_.reset(); });
     this.cameras.main.fadeIn(400, 10, 6, 24);
   }
-  toggleMute() { const s = this.settings; const on = s.sound && s.music; s.sound = !on; s.music = !on; this.audio.apply(); this.hud.refreshSound(s); }
+  toggleMute() { const s = this.settings; const on = s.sound && s.music; s.sound = !on; s.music = !on; this.audio.apply(); setMuted(on); }
   setPaused(p) {
     if (this.state !== 'play') return; this.paused = p; this.fx.setPaused(p); this.input_.reset();
-    if (p) {
-      this.pauseUI = [this.add.rectangle(0, 0, W, H, 0x0a0618, 0.65).setOrigin(0).setDepth(90).setInteractive(), txt(this, W / 2, 110, labels.pause, 34).setDepth(91),
-        makeButton(this, W / 2, 170, 200, 40, labels.resume, () => this.setPaused(false), { depth: 92, size: 18 }),
-        makeButton(this, W / 2, 218, 200, 40, labels.restart, () => this.scene.restart(), { depth: 92, size: 18 }),
-        makeButton(this, W / 2, 266, 200, 40, labels.mainMenu, () => this.exit('Menu'), { depth: 92, size: 18 })];
-    } else { this.pauseUI && this.pauseUI.forEach(o => o.destroy()); this.pauseUI = null; }
+    if (p) showPause({ onResume: () => this.setPaused(false), onRestart: () => { closeOverlay(); this.scene.restart(); }, onMenu: () => this.exit('Menu') });
+    else closeOverlay();
   }
-  exit(scene) { this.scene.stop('Results'); this.audio.setMode('ambient'); this.scene.start(scene); }
+  exit(scene) { closeOverlay(); this.scene.stop('Results'); this.audio.setMode('ambient'); this.scene.start(scene); }
   spawn() {
     const alive = this.ninjas.filter(n => !n.dead).length; if (alive >= gp.ninja.maxActive) return;
     const text = this.worries[this.spawned % this.worries.length];

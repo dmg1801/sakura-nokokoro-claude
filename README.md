@@ -14,7 +14,7 @@ npm test           # tests unitarios (Node, sin navegador)
 npm run build      # genera dist/
 npm run preview    # sirve dist/ para probarlo
 ```
-Requiere Node 18+. Prueba táctil en escritorio: abre `http://localhost:5173/?touch=1`.
+Requiere Node 18+. Prueba táctil en escritorio: abre `http://localhost:5173/?touch=1` (y usa las herramientas de dispositivo del navegador para girar entre vertical y horizontal).
 
 ## Publicar en GitHub Pages (paso a paso)
 1. Crea un repositorio en GitHub (p. ej. `sakura-no-kokoro`) y sube **el contenido de esta carpeta** a la rama `main`.
@@ -27,12 +27,18 @@ Requiere Node 18+. Prueba táctil en escritorio: abre `http://localhost:5173/?to
 - fija: edita el valor por defecto en `vite.config.js` (`'./'` = ruta relativa, válida en cualquier carpeta o en un ZIP subido a un hosting estático).
 Si usas un dominio propio en la raíz, pon `VITE_BASE=/`.
 
-## Controles
+## Controles y pantalla
 | | Mover | Saltar | Tajo | Pausa |
 |---|---|---|---|---|
 | Teclado | ← → / A D | ↑ / W / Espacio | J / K | P / Esc |
 | Táctil | botones ◀ ▶ | botón SALTO | botón TAJO | icono II |
-HUD: pausa, sonido, pantalla completa (si el navegador la permite) y reiniciar. El juego se pausa solo al cambiar de pestaña.
+
+**Móvil en vertical y en horizontal.** El campo de juego es 16:9 y se adapta solo.
+- *Horizontal:* el juego ocupa toda la pantalla; ◀ ▶ abajo a la izquierda, SALTO y TAJO abajo a la derecha, y arriba a la derecha pausa, sonido, pantalla completa y reiniciar.
+- *Vertical:* el juego va arriba y los controles debajo (herramientas en una fila, ◀ ▶ a la izquierda, SALTO sobre TAJO a la derecha). Los textos del lienzo (preocupaciones, temporizador) se agrandan automáticamente en pantallas pequeñas.
+- Los controles son HTML (`src/controls.js`, estilos en `src/style.css`), no parte del lienzo, así que mantienen tamaño de dedo en cualquier orientación. Son multitáctiles (mover y saltar a la vez). Se muestran en dispositivos táctiles.
+- **Pantalla completa:** el botón alterna entrar y salir (el icono cambia). En iPhone/Safari la API no existe y el botón se oculta; allí, "Compartir → Añadir a pantalla de inicio" abre el juego sin barras del navegador.
+- Se pausa solo al cambiar de pestaña o apps.
 
 ## Qué se puede editar sin tocar el motor
 | Archivo | Contenido |
@@ -79,12 +85,13 @@ No hay archivos de audio: la música (escala Hirajoshi, plucks tipo koto, taiko 
 Se guardan solo en memoria durante la partida (`registry`), nunca en `localStorage`, red ni disco. Se limpian de caracteres de control, se recortan a 28 caracteres, se rechazan vacías, sin letras/números o con `< > { } \``, y se pintan en canvas / con `textContent` (nunca `innerHTML`). Lo único persistente en `localStorage` son los ajustes de audio y de movimiento reducido.
 
 ## Funciones implementadas
-Menú, ajustes (sonido, música, 2 volúmenes, reducir movimiento), instrucciones, formulario de preocupaciones (0–5, añadir/quitar, sugerencias, validación), introducción contemplativa con entrada de ninjas, ciclo día/noche continuo de 120 s (sol, luna llena, estrellas, ventanas de la pagoda, farolillos), parallax, viento y pétalos, tajo con anticipación/impacto/recuperación, ninjas que saltan, avisan (parpadeo amarillo) y atacan (aturdimiento + invulnerabilidad), robo y recuperación de pétalos, muerte en pétalos de día / fuegos artificiales de noche, derrota inmediata, victoria con floración y cita, pausa que congela el cronómetro, pausa automática al perder foco, pantalla completa, controles táctiles multitáctil, aviso de rotación, áreas seguras, tests unitarios, workflow de Pages.
+Menú (DOM), ajustes (sonido, música, 2 volúmenes, reducir movimiento), instrucciones, formulario de preocupaciones (0–5, añadir/quitar, sugerencias, validación), introducción contemplativa con entrada de ninjas, ciclo día/noche continuo de 120 s (sol, luna llena, estrellas, ventanas de la pagoda, farolillos), parallax, viento y pétalos, tajo con anticipación/impacto/recuperación, ninjas que saltan, avisan (parpadeo amarillo) y atacan (aturdimiento + invulnerabilidad), robo y recuperación de pétalos, muerte en pétalos de día / fuegos artificiales de noche, derrota inmediata, victoria con floración y cita, pausa que congela el cronómetro, pausa automática al perder foco, pantalla completa, controles táctiles multitáctil en vertical y horizontal, pausa/resultados/menús en HTML, áreas seguras (notch), tests unitarios, workflow de Pages.
 
 ## Limitaciones conocidas
-- **No ejecutado en navegador** por quien lo escribió (ver arriba). Pendiente de verificar tú: 360×800 (aviso), 844×390 y 1920×1080, táctil + teclado, pantalla completa, partida completa de 120 s, derrota temprana, jugar con 0/1/5 preocupaciones, y consola sin errores.
+- **No ejecutado en navegador** por quien lo escribió (ver arriba). Pendiente de verificar tú: 360×800 (vertical), 844×390 y 1920×1080, táctil + teclado, pantalla completa, partida completa de 120 s, derrota temprana, jugar con 0/1/5 preocupaciones, y consola sin errores.
 - No se ha afinado el balance con jugadores reales (`config/gameplay.json` → `spawn`, `ninja`).
 - El arte es procedural y funcional, no ilustración final: conviene sustituirlo por PNG propios.
 - iPhone no permite pantalla completa en Safari (el botón se oculta).
+- En vertical el campo de juego ocupa solo el ancho de la pantalla (se ve pequeño); en horizontal se ve mejor. Deslizar el dedo de ◀ a ▶ sin levantarlo no cambia de dirección: hay que levantar y volver a pulsar.
 - Los glifos CJK/griego de las citas dependen de las fuentes del dispositivo.
 - El texto de la interfaz usa fuente del sistema (sin fuente bitmap incluida).
